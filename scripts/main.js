@@ -20,6 +20,8 @@ function requestBSPFile() {
                 name = bspFile.files[0].name;
             }
             document.querySelector("#bspFileInput").value = name;
+            document.querySelector("#bspFileLoad").disabled = false;
+            
         }
     }
     bspFile.click();

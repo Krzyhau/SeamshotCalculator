@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Portal 2 Seamshot Finder</title>
+    <title>Portal 2 Seamshot Calculator</title>
     <script type="text/javascript" src="scripts/binary-parser.js"></script>
     <script type="text/javascript" src="scripts/vector.js"></script>
     <script type="text/javascript" src="scripts/bsp-parser.js"></script>
@@ -12,7 +12,7 @@
 </head>
 <body>
     <div id="main">
-        <h1>Seamshot Finder</h1>
+        <h1>Seamshot Calculator</h1>
 
         <p>
             Ray collision detection with brushes in Source-based games have a bug 
@@ -27,7 +27,7 @@
         </p>
 
         <input type='button' id="bspFileInput" value="Select a BSP file." onclick="requestBSPFile();">
-        <input type='button' id='bspFileLoad' value='Load' onclick='loadFile();'>
+        <input type='button' id='bspFileLoad' disabled="true" value='Calculate seams' onclick='loadFile();'>
         <span id="log">
         
         </span>
