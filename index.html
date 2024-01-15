@@ -19,7 +19,7 @@
             allowing you to shoot through some of the seams. We call them <b>seamshots</b>
             (more info on that <a target="_blank" href="https://wiki.portal2.sr/Seamshot">here</a>.) 
             This little tool of mine was created to find these seams in any given 
-            Portal 2 BSP map, and give you a list of <code>sar_drawline</code> commands 
+            Portal 2 or Strata Source BSP map, and give you a list of commands (based on the selected option)
             in a config file which you can execute in game to see all of the seams. 
             False positives are undoubtedly certain, and colors make absolutely no sense, 
             but it's enough for me so heck it, releasing the tool so maybe someone else 
@@ -28,6 +28,13 @@
 
         <input type='button' id="bspFileInput" value="Select a BSP file." onclick="requestBSPFile();">
         <input type='button' id='bspFileLoad' disabled="true" value='Calculate seams' onclick='loadFile();'>
+
+        <br>
+        <input type="radio" id="sar_drawline" name="command" value="sar_drawline" checked="checked">
+        <label for="sar_drawline">Emit <code>sar_drawline</code> commands (preferred if SAR is available)</label><br>
+        <input type="radio" id="script" name="command" value="script">
+        <label for="script">Emit <code>script</code> commands (lowers FPS a lot when used)</label><br>
+
         <span id="log">
         
         </span>

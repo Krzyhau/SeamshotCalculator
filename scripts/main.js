@@ -51,6 +51,7 @@ function loadFile() {
 
     document.querySelector("#bspFileInput").disabled = true;
     document.querySelector("#bspFileLoad").disabled = true;
+    let command = document.querySelector('input[name=command]:checked').value;
     
     let file = bspFile.files[0];
     let fr = new FileReader();
@@ -62,8 +63,8 @@ function loadFile() {
             if (typeof (e.data) == "string") {
                 log(e.data);
             } else {
-                let filename = file.name.split(".")[0] + "_seams.cfg";
-                outputSeamshotsIntoFile(e.data, filename);
+                let filename = "seams_" + file.name.split(".")[0] + ".cfg";
+                outputSeamshotsIntoFile(e.data, filename, command);
                 SeamshotWorker = null;
                 document.querySelector("#bspFileInput").disabled = false;
                 document.querySelector("#bspFileLoad").disabled = false;
@@ -78,16 +79,34 @@ function loadFile() {
 
 
 // converts seamshot array into a drawline commands string, then requests download.
-function outputSeamshotsIntoFile(seamshots, filename) {
+function outputSeamshotsIntoFile(seamshots, filename, command) {
     let output = "";
 
-    for (let seamshot of seamshots) {
-        output +=
-            "sar_drawline "
-            + seamshot.point1.x + " " + seamshot.point1.y + " " + seamshot.point1.z + " "
-            + seamshot.point2.x + " " + seamshot.point2.y + " " + seamshot.point2.z + " "
-            + (seamshot.planenum > 1 ? "0 255 0" : (seamshot.type == 0 ? "255 150 0" : "255 0 0"))
-            + "\n";
+    switch (command) {
+        case "sar_drawline":
+            for (let seamshot of seamshots) {
+                output +=
+                    "sar_drawline "
+                    + seamshot.point1.x + " " + seamshot.point1.y + " " + seamshot.point1.z + " "
+                    + seamshot.point2.x + " " + seamshot.point2.y + " " + seamshot.point2.z + " "
+                    + (seamshot.planenum > 1 ? "0 255 0" : (seamshot.type == 0 ? "255 150 0" : "255 0 0"))
+                    + "\n";
+            }
+            break;
+        case "script":
+            output = "script printl(\"Bind this config to a key for it to work (bind <key> \\\"exec seams_mapname\\\")\")\n"
+            output += "script printl(\"The drawn lines can be turned off with the clear_debug_overlays command "
+                + "and will turn off automatically after 1000 seconds\")\n"
+            output += "script function _l(x1,y1,z1,x2,y2,z2,r){DebugDrawLine(Vector(x1,y1,z1),Vector(x2,y2,z2),r,255-r,0,true,1000)}\n"
+            for (let seamshot of seamshots) {
+                output +=
+                    "script _l("
+                    + seamshot.point1.x + "," + seamshot.point1.y + "," + seamshot.point1.z + ","
+                    + seamshot.point2.x + "," + seamshot.point2.y + "," + seamshot.point2.z + ","
+                    + (seamshot.planenum > 1 ? "0" : (seamshot.type == 0 ? "150" : "255"))
+                    + ")\n";
+            }
+            break;
     }
 
     download(filename, output);
