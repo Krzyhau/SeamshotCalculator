@@ -34,48 +34,53 @@ BSP.Plane = class {
 }
 
 BSP.Node = class {
-    constructor(data) {
+    constructor(data, bspVersion) {
         this.planenum = data.read("int", 4);
         this.children = [
             data.read("int", 4),
             data.read("int", 4)
         ];
+        let minsMaxsType = bspVersion == 25 ? "float" : "int";
+        let readSize = bspVersion == 25 ? 4 : 2;
         this.mins = new Vector(
-            data.read("int", 2),
-            data.read("int", 2),
-            data.read("int", 2)
+            data.read(minsMaxsType, readSize),
+            data.read(minsMaxsType, readSize),
+            data.read(minsMaxsType, readSize)
         );
         this.maxs = new Vector(
-            data.read("int", 2),
-            data.read("int", 2),
-            data.read("int", 2)
+            data.read(minsMaxsType, readSize),
+            data.read(minsMaxsType, readSize),
+            data.read(minsMaxsType, readSize)
         );
-        this.firstface = data.read("uint", 2);
-        this.numfaces = data.read("uint", 2);
+        this.firstface = data.read("uint", readSize);
+        this.numfaces = data.read("uint", readSize);
         this.area = data.read("int", 2);
         this.padding = data.read("int", 2);
     }
 }
 
 BSP.Leaf = class {
-    constructor(data) {
+    constructor(data, bspVersion) {
         this.contents = data.read("int", 4);
-        this.cluster = data.read("int", 2);
-        this.areaAndFlags = data.read("raw", 2); //fuck that, i aint doing bit separation
-        this.mins = [data.read("int", 2), data.read("int", 2), data.read("int", 2)];
-        this.maxs = [data.read("int", 2), data.read("int", 2), data.read("int", 2)];
-        this.firstleafface = data.read("uint", 2);
-        this.numleaffaces = data.read("uint", 2);
-        this.firstleafbrush = data.read("uint", 2);
-        this.numleafbrushes = data.read("uint", 2);
-        this.leafWaterDataID = data.read("int", 2);
-        data.read("raw", 2); // padding
+        let minsMaxsType = bspVersion == 25 ? "float" : "int";
+        let readSize = bspVersion == 25 ? 4 : 2;
+        this.cluster = data.read("int", readSize);
+        this.areaAndFlags = data.read("raw", readSize); //fuck that, i aint doing bit separation
+        this.mins = [data.read(minsMaxsType, readSize), data.read(minsMaxsType, readSize), data.read(minsMaxsType, readSize)];
+        this.maxs = [data.read(minsMaxsType, readSize), data.read(minsMaxsType, readSize), data.read(minsMaxsType, readSize)];
+        this.firstleafface = data.read("uint", readSize);
+        this.numleaffaces = data.read("uint", readSize);
+        this.firstleafbrush = data.read("uint", readSize);
+        this.numleafbrushes = data.read("uint", readSize);
+        this.leafWaterDataID = data.read("int", readSize);
+        if (bspVersion < 25)
+            data.read("raw", 2); // padding
     }
 }
 
 BSP.LeafBrushRef = class {
-    constructor(data) {
-        this.id = data.read("uint", 2);
+    constructor(data, bspVersion) {
+        this.id = data.read("uint", bspVersion == 25 ? 4 : 2);
     }
 }
 
@@ -88,12 +93,15 @@ BSP.Brush = class {
 }
 
 BSP.BrushSide = class {
-    constructor(data) {
-        this.planenum = data.read("uint", 2);
-        this.texinfo = data.read("int", 2);
-        this.dispinfo = data.read("int", 2);
+    constructor(data, bspVersion) {
+        let readSize = bspVersion == 25 ? 4 : 2;
+        this.planenum = data.read("uint", readSize);
+        this.texinfo = data.read("int", readSize);
+        this.dispinfo = data.read("int", readSize);
         this.bevel = data.read("int", 1) > 0;
         this.thin = data.read("int", 1) > 0;
+        if (bspVersion == 25)
+            data.read("raw", 2); // padding
     }
 }
 
@@ -149,7 +157,7 @@ BSP.Map = class{
         let lumpObjects = [];
 
         while (data.offset < startOffset + length) {
-            lumpObjects.push(new LumpObject(data));
+            lumpObjects.push(new LumpObject(data, this.version));
         }
 
         return lumpObjects;
